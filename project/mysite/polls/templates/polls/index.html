@@ -1,6 +1,6 @@
 {% if latest_question_list %}
 	<ul>
-	{% for quesiton in latest_question_list %}
+	{% for question in latest_question_list %}
 		<li>
 			<a href="/polls/{{ question.id }}/">{{ question.question_text }}</a>
 		</li>
@@ -8,5 +8,4 @@
 	</ul>
 {% else %}
 	<p>No polls re available.</p>
-<% endif %}
-
+{% endif %}
