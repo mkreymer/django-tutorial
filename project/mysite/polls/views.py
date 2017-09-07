@@ -1,9 +1,15 @@
 from django.shortcuts import render
+from django.http import Http404
 
 # Create your views here.
 from django.http import HttpResponse
+# the above could be removed with the render short cut... but due to the stub methods 
+# for detail, results, and vote remaining. this too shall remain. 
 
-from django.template import loader
+#-----from django.template import loader
+#the above import is no longer needed due to the render shortcut
+#which loads the template and fills a context and return an HttpResponse object
+
 # importing this for the new view which displays latest 5 poll questions 
 from .models import Question
 
@@ -44,16 +50,33 @@ def vote(request, question_id):
 # So let's use Django's template system to seperate the design from Python by
 # creating a template that the view can use
 
-def index(request):
-	latest_question_list = Question.objects.order_by('-pub_date')[:5]
-	template = loader.get_template('polls/index.html')
-	context = {
-		'latest_question_list': latest_question_list,
-	}
-	return HttpResponse(template.render(context, request))
+#------------------------------------------------------------------------------
+
+#-----def index(request):
+#-----	latest_question_list = Question.objects.order_by('-pub_date')[:5]
+#-----	template = loader.get_template('polls/index.html')
+#-----	context = {
+#-----		'latest_question_list': latest_question_list,
+#-----	}
+#-----	return HttpResponse(template.render(context, request))
 #the above loads the template polls/index.html and passes it a context
 
 
 
 
+# This is the shortcut: render()... which covers (like above)
+# template loading, filling context, and returning HttpResponse
+def index(request):
+	latest_question_list = Question.objects.order_by('-pub_date')[:5]
+	context = {'latest_question_list': latest_question_list}
+	return render(request, 'polls/index.html', context)
+
+
+#Raising a 404 error
+def detail(request, question_id):
+	try:
+		question = Question.objects.get(pk=question_id)
+	except Question.DoesNotExist:
+		raise Http404("Question does not exist")
+	return render(request, 'polls/detail.html', {'question': question})
 
