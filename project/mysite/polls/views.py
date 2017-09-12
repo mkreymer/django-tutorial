@@ -1,65 +1,38 @@
-from django.shortcuts import render
-from django.http import Http404
+from django.shortcuts import get_object_or_404, render
+from django.http import HttpResponseRedirect, HttpResponse
+from django.urls import reverse
 
-# Create your views here.
-from django.http import HttpResponse
-# the above could be removed with the render short cut... but due to the stub methods 
-# for detail, results, and vote remaining. this too shall remain. 
-
-#-----from django.template import loader
-#the above import is no longer needed due to the render shortcut
-#which loads the template and fills a context and return an HttpResponse object
-
-# importing this for the new view which displays latest 5 poll questions 
-from .models import Question
+from .models import Choice, Question
 
 
-
-
-
-def index(request):
-    return HttpResponse("Hello, world. You're at the polls index.")
-
-
-
-
-# these views are slightly different because they take an argument:
-def detail(request, question_id):
-	return HttpResponse("You're looking at question %s." % question_id)
 
 def results(request, question_id):
-	response = "You're looking at the results of question %s."
-	return HttpResponse(response % question_id)
+	question = get_object_or_404(Question, pk=question_id)
+	return render(request, 'polls/results.html', {'question': question})
 
 def vote(request, question_id):
-	return HttpResponse("You're voting on question %s." % question_id)
-#the above must then be wired into the polls.urls module by adding url() calls
+	question = get_object_or_404(Question, pk=question_id)
+	try:
+		selected_choice = question.choice_set.get(pk=request.POST['choice'])
+	except (KeyError, Choice.DoesNotExist):
+		# Redisplay the question voting form.
+		return render(request, 'polls/detail.html', {
+			'question': question,
+			'error_message': "You didn't select a choice.",
+			})
+	else:
+		selected_choice.votes += 1
+		selected_choice.save()
+		#Always return an HttpResponseRedirect after successfully dealing with
+		#POST data. This preevnts data from being posted twiec if a user hits the back button
+		return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))
+		# We are using the reverse() function in the HttpResponseRedirect constructor in this example. 
+		# This function helps avoid having to hardcode a URL in the view function. It is given the 
+		# name of the view that we want to pass control to and the variable portion of the URL pattern
+		# that points to that view. In this case, using the URLconf we set up in Tutorial 3, 
+		# this reverse() call will return a string like '/polls/3/results/' where the 3 is the value of question.id.
+		# This redirected URL will then call the 'results' view to display the final page.
 
-
-
-# displays latest 5 poll questions in
-# the system, seperated by commas, according to publication date
-
-#-----def index(request):
-#-----	latest_question_list = Question.objeccts.order_by('-pub_date')[:5]
-#-----	output = ', '.join([q.question_text for q in latest_question_list])
-#-----	return HttpResponse(output)
-
-# There's a problem here, though: the page's design is hard-coded in the view. If 
-# you want to change the way the page looks, you;ll have to edit this Python code.
-# So let's use Django's template system to seperate the design from Python by
-# creating a template that the view can use
-
-#------------------------------------------------------------------------------
-
-#-----def index(request):
-#-----	latest_question_list = Question.objects.order_by('-pub_date')[:5]
-#-----	template = loader.get_template('polls/index.html')
-#-----	context = {
-#-----		'latest_question_list': latest_question_list,
-#-----	}
-#-----	return HttpResponse(template.render(context, request))
-#the above loads the template polls/index.html and passes it a context
 
 
 
@@ -71,12 +44,18 @@ def index(request):
 	context = {'latest_question_list': latest_question_list}
 	return render(request, 'polls/index.html', context)
 
-
 #Raising a 404 error
+#-----def detail(request, question_id):
+#-----    try:
+#-----        question = Question.objects.get(pk=question_id)
+#-----    except Question.DoesNotExist:
+#-----        raise Http404("Question does not exist")
+#-----    return render(request, 'polls/detail.html', {'question': question})
+#NOTE: theres a shortcut for this too... the get_object_or_404() function
+
 def detail(request, question_id):
-	try:
-		question = Question.objects.get(pk=question_id)
-	except Question.DoesNotExist:
-		raise Http404("Question does not exist")
+	question = get_object_or_404(Question, pk=question_id)
 	return render(request, 'polls/detail.html', {'question': question})
+	
+
 
