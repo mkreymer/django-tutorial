@@ -12,9 +12,12 @@
 			<a href="{% url 'detail' question.id %}">{{ question.question_text }}
 			</a></li>
 		{% endcomment %}
+
 		<a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}
 			</a></li>
 		</li>
+
+		
 	{% endfor %}
 	</ul>
 {% else %}

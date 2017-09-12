@@ -4,7 +4,25 @@ from django.urls import reverse
 
 from .models import Choice, Question
 
+# This is the shortcut: render()... which covers (like above)
+# template loading, filling context, and returning HttpResponse
+def index(request):
+	latest_question_list = Question.objects.order_by('-pub_date')[:5]
+	context = {'latest_question_list': latest_question_list}
+	return render(request, 'polls/index.html', context)
+							#this actually takes to just /polls/ checkout urls.py!
 
+def detail(request, question_id):
+	question = get_object_or_404(Question, pk=question_id)
+	return render(request, 'polls/detail.html', {'question': question})
+#Raising a 404 error
+#-----def detail(request, question_id):
+#-----    try:
+#-----        question = Question.objects.get(pk=question_id)
+#-----    except Question.DoesNotExist:
+#-----        raise Http404("Question does not exist")
+#-----    return render(request, 'polls/detail.html', {'question': question})
+#NOTE: theres a shortcut for this too... the get_object_or_404() function
 
 def results(request, question_id):
 	question = get_object_or_404(Question, pk=question_id)
@@ -34,28 +52,6 @@ def vote(request, question_id):
 		# This redirected URL will then call the 'results' view to display the final page.
 
 
-
-
-
-# This is the shortcut: render()... which covers (like above)
-# template loading, filling context, and returning HttpResponse
-def index(request):
-	latest_question_list = Question.objects.order_by('-pub_date')[:5]
-	context = {'latest_question_list': latest_question_list}
-	return render(request, 'polls/index.html', context)
-
-#Raising a 404 error
-#-----def detail(request, question_id):
-#-----    try:
-#-----        question = Question.objects.get(pk=question_id)
-#-----    except Question.DoesNotExist:
-#-----        raise Http404("Question does not exist")
-#-----    return render(request, 'polls/detail.html', {'question': question})
-#NOTE: theres a shortcut for this too... the get_object_or_404() function
-
-def detail(request, question_id):
-	question = get_object_or_404(Question, pk=question_id)
-	return render(request, 'polls/detail.html', {'question': question})
 	
 
 
