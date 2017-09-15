@@ -15,6 +15,11 @@ class Question(models.Model):
 		now = timezone.now()
 		return now - datetime.timedelta(days=1) <= self.pub_date <= now
 
+	was_published_recently.admin_order_field = 'pub_date'
+	was_published_recently.boolean = True # adds the (x) image to replace 'False'
+	was_published_recently.short_description = 'Published recently'
+	# above 3 lines added to adjust output on admin page for was_published_recently field
+
 	def __str__(self):
 		return self.question_text
 

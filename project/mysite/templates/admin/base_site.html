@@ -1,0 +1,14 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name"><a href="{% url 'admin:index' %}">Polls Administration</a></h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+#Note that this solution places the title into the entire admin so its not the best approach
+	# It would be more sensible to modify the application's temples, rather than those
+	#in the project. That way, you can include the polls application in any new project
+	#and be assured that it would find the custom templates it needed.

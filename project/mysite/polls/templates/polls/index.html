@@ -1,7 +1,12 @@
+{% load static %}
+
+<link rel="stylesheet" type="text/css" href="{% static 'polls/style.css' %}" />
+
 {% if latest_question_list %}
 	<ul>
 	{% for question in latest_question_list %}
 		<li>	
+
 		{% comment %}
 			this right here is a hardcoded url. this isnt needed and complicates things the better way to do it is below.
 			<a href="/polls/{{ question.id }}/">{{ question.question_text }}</a>
@@ -16,8 +21,7 @@
 		<a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}
 			</a></li>
 		</li>
-
-		
+	
 	{% endfor %}
 	</ul>
 {% else %}

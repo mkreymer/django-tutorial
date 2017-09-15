@@ -5,6 +5,8 @@ from django.views import generic
 
 from .models import Choice, Question
 
+from django.utils import timezone
+
 # This is the shortcut: render()... which covers (like above)
 # template loading, filling context, and returning HttpResponse\
 # 
@@ -22,22 +24,51 @@ from .models import Choice, Question
 #-----	question = get_object_or_404(Question, pk=question_id)
 #-----	return render(request, 'polls/results.html', {'question': question})
 
+# for the above 3 segments ^^^^^^
+# 'question' and 'latest_question_list' are context variables.
+# these context variables are then provided to the templates
+# NOTE NAME: AAA
+
+
 
 class IndexView(generic.ListView):
 	template_name = 'polls/index.html'
 	context_object_name = 'latest_question_list'
 
 	def get_queryset(self):
-		"""return the last five published questions."""
-		return Question.objects.order_by('-pub_date')[:5]
+		"""
+		return the last five published questions (not including those set 
+		to be published in the future 
+		"""
+		return Question.objects.filter(  #returns a queryset containg 'Question's whose pub. date 
+			pub_date__lte=timezone.now()  #^ is less than or equal to - that is, earlier than or equal to - timezone.now
+		).order_by('-pub_date')[:5]
+		#-----return Question.objects.order_by('-pub_date')[:5]
+		#the above is before filtering out those set to be pub. in future
 
 class DetailView(generic.DetailView):
 	model = Question
 	template_name = 'polls/detail.html'
+	def get_queryset(self):
+		"""
+		Excludes any questions that aren't published yet.
+		"""
+		return Question.objects.filter(pub_date__lte=timezone.now())
+		
 
 class ResultsView(generic.DetailView):
 	model = Question
 	template_name = 'polls/results.html'
+
+# In previous parts of the tutorial, the templates have been provided with a context that 
+# contains the question and the latest_question_list context variable. For DetaiLView the 
+# question variable is provideed automatically - since we're using a Django model (Question), Django
+# is able to determine an appropriate name for the context variable. However, for ListView,
+# the automatically generated context variable is question_list. To override this we provide the
+# context_object_name attribute, specifying the we want to use latest_quesiton_list instead. As an 
+# alternative approach, you could change your templates to match the new default context variables - 
+# but it's a lot easier to just tell Django to use the variable you want.
+
 
 
 
